@@ -11,9 +11,10 @@ describe('ECDH test', () => {
   let eddsa: EdDSA;
   beforeAll(async () => {
     eddsa = await buildEddsaModule();
-  }, 15000);
+  }, 25000);
 
   it('should encrypt/decrypt text', async () => {
+    //jest.setTimeout(30000);
     const { privKey: bobPrivKey, pubKey: bobPubKey } = genKeypair(eddsa);
     const { privKey: alicePrivKey, pubKey: alicePubKey } = genKeypair(eddsa);
     const ecdhSharedKey = await genEcdhSharedKey({
@@ -38,9 +39,10 @@ describe('ECDH test', () => {
     });
     const decryptedMessage = await decrypt(ciphertext, ecdhbobSharedKey);
     expect(decryptedMessage).toStrictEqual(aliceMessage);
-  });
+  },15000);
 
   it('should fail if decrypted with incorrect public key', async () => {
+   // jest.setTimeout(30000);
     const { privKey: bobPrivKey, pubKey: bobPubKey } = genKeypair(eddsa);
     const { privKey: alicePrivKey } = genKeypair(eddsa);
 
@@ -67,5 +69,5 @@ describe('ECDH test', () => {
 
     const decryptedMessage = await decrypt(ciphertext, ecdhSharedIncorrectKey);
     expect(decryptedMessage).not.toEqual(aliceMessage);
-  });
+  },15000);
 });

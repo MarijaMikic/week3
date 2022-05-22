@@ -237,10 +237,31 @@ const encrypt = async (
   plaintext: Plaintext,
   sharedKey: EcdhSharedKey,
 ): Promise<Ciphertext> => {
-  const mimc7 = await buildMimc7();
-  // [assignment] generate the IV, use Mimc7 to hash the shared key with the IV, then encrypt the plain text
-};
-
+   const mimc7 = await buildMimc7()
+   // [assignment] generate the IV, use Mimc7 to hash the shared key with the IV, then encrypt the plain text
+   const iv1= mimc7.multiHash(plaintext, BigInt(0))
+   const iv2 = mimc7.F.toString(iv1)
+   const iv = BigInt(iv2);
+   //console.log(iv);
+   const ciphertext: Ciphertext = {
+       iv,
+       data: plaintext.map((e: bigint, i: number): bigint => {
+      //console.log(e);
+       const hash_buff = mimc7.multiHash([sharedKey, iv + BigInt(i)])
+       //console.log(hash_buff)
+       const pubSolnHash = mimc7.F.toString(hash_buff)
+      //console.log(pubSolnHash)
+        const pubSolnHash1 = BigInt(pubSolnHash)
+        //console.log(pubSolnHash1)
+        const m = e + pubSolnHash1
+        //console.log(m)
+           return m
+        }),
+    }
+   // console.log('Chiphtext1', ciphertext)
+    //TODO: add asserts here
+    return ciphertext  
+}
 /*
  * Decrypts a ciphertext using a given key.
  * @return The plaintext.
@@ -249,7 +270,20 @@ const decrypt = async (
   ciphertext: Ciphertext,
   sharedKey: EcdhSharedKey,
 ): Promise<Plaintext> => {
-  // [assignment] use Mimc7 to hash the shared key with the IV, then descrypt the ciphertext
+  //[assignment] use Mimc7 to hash the shared key with the IV, then descrypt the ciphertext
+  const mimc7 = await buildMimc7();
+  const plaintext: Plaintext = ciphertext.data.map(
+  (e: bigint, i: number): bigint => {
+  const hash1_buff = mimc7.multiHash([sharedKey, BigInt(ciphertext.iv) + BigInt(i)])
+  //console.log(hash_buff)
+  const pubSolnHash1 = mimc7.F.toString(hash1_buff)
+  const n = e - BigInt(pubSolnHash1)
+ // console.log(n)  
+  return n    
+   }
+)
+
+return plaintext
 };
 
 export {
